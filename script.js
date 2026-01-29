@@ -1,25 +1,33 @@
 let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-function renderExpenses(expensesData) {
-    const expensesList = document.getElementById('expenseList');
-    expensesList.innerHTML = '';
 
-    let totalExpense = 0;
+function renderExpenses(expensesToDisplay) {
+    const list = document.getElementById('expenseList');
+    list.innerHTML = '';
+    let total = 0;
 
-    expensesData.forEach((expense, index) => {
-        totalExpense += expense.amount;
-        const expenseDiv = document.createElement('div');
-        expenseDiv.classList.add('expense');
-        expenseDiv.innerHTML = `
-            <p>Amount: ${expense.amount}, Date: ${expense.date}, Description: ${expense.description}</p>
-            <button onclick="editExpense(${index})">Edit</button>
-            <button onclick="deleteExpense(${index})">Delete</button>
+    expensesToDisplay.forEach((item, index) => {
+        total += item.amount;
+        const div = document.createElement('div');
+        div.className = 'expense';
+        div.innerHTML = `
+            <div class="expense-info">
+                <h4>${item.description}</h4>
+                <p>₹${item.amount.toFixed(2)} • ${item.date}</p>
+            </div>
+            <div class="actions">
+                <button class="btn-outline" onclick="editExpense(${index})">Edit</button>
+                <button class="delete-btn" onclick="deleteExpense(${index})">Delete</button>
+            </div>
         `;
-        expensesList.appendChild(expenseDiv);
+        list.appendChild(div);
     });
 
-    document.getElementById('totalExpense').textContent = `Total Expense: ${totalExpense.toFixed(2)} Rs`;
+    document.getElementById('totalExpense').textContent = `Total: ₹${total.toFixed(2)}`;
+}
 
-    localStorage.setItem('expenses', JSON.stringify(expensesData));
+// Logic Fix: Only save the MASTER list, never the filtered list
+function saveToStorage() {
+    localStorage.setItem('expenses', JSON.stringify(expenses));
 }
 
 function addExpense() {
@@ -27,61 +35,50 @@ function addExpense() {
     const date = document.getElementById('date').value;
     const description = document.getElementById('description').value;
 
-    if (isNaN(amount) || amount <= 0 || !date || !description) {
-        alert('Please enter valid amount, date, and description.');
-        return;
-    }
+    if (!amount || !date || !description) return alert("Fill all fields!");
 
     expenses.push({ amount, date, description });
+    saveToStorage(); // Save master list
     renderExpenses(expenses);
-}
-
-function editExpense(index) {
-    const newAmount = parseFloat(prompt('Enter new amount:'));
-    const newDate = prompt('Enter new date:');
-    const newDescription = prompt('Enter new description:');
-
-    if (isNaN(newAmount) || newAmount <= 0 || !newDate || !newDescription) {
-        alert('Please enter valid amount, date, and description.');
-        return;
-    }
-
-    expenses[index].amount = newAmount;
-    expenses[index].date = newDate;
-    expenses[index].description = newDescription;
-    renderExpenses(expenses);
+    
+    // Clear inputs
+    document.getElementById('amount').value = '';
+    document.getElementById('description').value = '';
 }
 
 function deleteExpense(index) {
-    expenses.splice(index, 1);
-    renderExpenses(expenses);
+    if(confirm("Delete this expense?")) {
+        expenses.splice(index, 1);
+        saveToStorage();
+        renderExpenses(expenses);
+    }
 }
 
 function applyFilters() {
-    const minAmount = parseFloat(document.getElementById('minAmount').value);
-    const maxAmount = parseFloat(document.getElementById('maxAmount').value);
-    const startDate = new Date(document.getElementById('startDate').value);
-    const endDate = new Date(document.getElementById('endDate').value);
+    const min = parseFloat(document.getElementById('minAmount').value);
+    const max = parseFloat(document.getElementById('maxAmount').value);
+    const start = new Date(document.getElementById('startDate').value);
+    const end = new Date(document.getElementById('endDate').value);
 
-    const filteredExpenses = expenses.filter(expense => {
-        const expenseDate = new Date(expense.date);
-        return (!minAmount || expense.amount >= minAmount) &&
-               (!maxAmount || expense.amount <= maxAmount) &&
-               (!isNaN(startDate.getTime()) || expenseDate >= startDate) &&
-               (!isNaN(endDate.getTime()) || expenseDate <= endDate);
+    const filtered = expenses.filter(exp => {
+        const d = new Date(exp.date);
+        const matchesAmount = (!min || exp.amount >= min) && (!max || exp.amount <= max);
+        // Fix: Use isNaN check correctly to ignore empty dates
+        const matchesDate = (isNaN(start.getTime()) || d >= start) && 
+                            (isNaN(end.getTime()) || d <= end);
+        return matchesAmount && matchesDate;
     });
 
-    renderExpenses(filteredExpenses);
+    renderExpenses(filtered);
 }
 
-function sortExpenses(sortBy) {
-    let sortedExpenses = [...expenses];
-    if (sortBy === 'amount') {
-        sortedExpenses.sort((a, b) => a.amount - b.amount);
-    } else if (sortBy === 'date') {
-        sortedExpenses.sort((a, b) => new Date(a.date) - new Date(b.date));
+function sortExpenses(key) {
+    if (key === 'amount') {
+        expenses.sort((a, b) => b.amount - a.amount); // Higher first
+    } else {
+        expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
     }
-
-    renderExpenses(sortedExpenses);
+    saveToStorage();
+    renderExpenses(expenses);
 }
 renderExpenses(expenses);

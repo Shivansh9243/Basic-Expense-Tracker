@@ -1,45 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Expense Tracker</title>
-<link rel="stylesheet" href="style.css">
-<script src="script.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Expense Tracker</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
-    <h1>Expense Tracker</h1>
-    <div class="input-group">
-        <label for="amount">Amount:</label>
-        <input type="number" id="amount" step="0.01">
-        <label for="date">Date:</label>
-        <input type="date" id="date">
-        <label for="description">Description:</label>
-        <input type="text" id="description">
-        <button onclick="addExpense()">Add Expense</button>
-    </div>
-    <div class="filter-sort-group">
-        <div class="filter-group">
-            <label for="minAmount">Min Amount:</label>
-            <input type="number" id="minAmount" step="0.01">
-            <label for="maxAmount">Max Amount:</label>
-            <input type="number" id="maxAmount" step="0.01">
-            <label for="startDate">Start Date:</label>
-            <input type="date" id="startDate">
-            <label for="endDate">End Date:</label>
-            <input type="date" id="endDate">
-            <br> 
-            <br>
-            <button onclick="applyFilters()">Apply Filters</button>
+    <div class="container">
+        <h1>💸 Expense Tracker</h1>
+        
+        <div class="card">
+            <h3>Add New Expense</h3>
+            <div class="input-grid">
+                <div class="field">
+                    <label>Amount (₹)</label>
+                    <input type="number" id="amount" placeholder="0.00" step="0.01">
+                </div>
+                <div class="field">
+                    <label>Date</label>
+                    <input type="date" id="date">
+                </div>
+                <div class="field">
+                    <label>Description</label>
+                    <input type="text" id="description" placeholder="Lunch, Rent, etc.">
+                </div>
+                <button class="btn-primary" onclick="addExpense()">Add Expense</button>
+            </div>
         </div>
+
+        <div class="card filter-card">
+            <h3>Filters & Sorting</h3>
+            <div class="filter-grid">
+                <input type="number" id="minAmount" placeholder="Min ₹">
+                <input type="number" id="maxAmount" placeholder="Max ₹">
+                <input type="date" id="startDate">
+                <input type="date" id="endDate">
+                <button class="btn-secondary" onclick="applyFilters()">Apply Filters</button>
+                <button class="btn-outline" onclick="renderExpenses(expenses)">Clear Filters</button>
+            </div>
+            <div class="sort-actions">
+                <span>Sort by:</span>
+                <button onclick="sortExpenses('amount')">Amount</button>
+                <button onclick="sortExpenses('date')">Date</button>
+            </div>
+        </div>
+
+        <div class="expense-header">
+            <h2>Recent Transactions</h2>
+            <div id="totalExpense" class="total-badge">Total: ₹0.00</div>
+        </div>
+        
+        <div class="expense-list" id="expenseList">
+            </div>
     </div>
-    <div class="sort-group">
-        <button onclick="sortExpenses('amount')">Sort by Amount</button>
-        <button onclick="sortExpenses('date')">Sort by Date</button>
-    </div>
-    <div class="expense-list" id="expenseList"></div>
-    <div id="totalExpense"></div>
-</div>
+    <script src="script.js"></script>
 </body>
 </html>
