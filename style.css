@@ -2,7 +2,7 @@
     --primary: #6366f1;
     --primary-hover: #4f46e5;
     --danger: #ef4444;
-    --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    --bg-gradient: linear-gradient(135deg, #d4d8dd 0%, #a8b2c1 100%);
 }
 
 body {
